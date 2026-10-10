@@ -1,0 +1,247 @@
+{% extends "helpdesk/base.html" %}
+
+{% block title %}
+    Assets | IT Service Desk
+{% endblock %}
+
+{% block content %}
+
+    <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+
+        <div>
+            <span class="text-uppercase small fw-bold text-muted">
+                Asset Management
+            </span>
+
+            <h1 class="h3 fw-bold mb-1">
+                Assets
+            </h1>
+
+            <p class="text-muted mb-0">
+                Track equipment, assignments and asset status.
+            </p>
+        </div>
+
+        <a
+            href="{% url 'helpdesk:asset_create' %}"
+            class="btn btn-primary"
+        >
+            <i class="bi bi-plus-lg me-1"></i>
+            Add Asset
+        </a>
+
+    </div>
+
+
+    <div class="card border-0 shadow-sm mb-4">
+
+        <div class="card-body">
+
+            <form method="get">
+
+                <div class="row g-3 align-items-end">
+
+                    <div class="col-12 col-md-5">
+
+                        <label
+                            for="status"
+                            class="form-label small fw-semibold"
+                        >
+                            Status
+                        </label>
+
+                        <select
+                            id="status"
+                            name="status"
+                            class="form-select"
+                        >
+                            <option value="">
+                                All statuses
+                            </option>
+
+                            {% for value, label in status_choices %}
+                                <option
+                                    value="{{ value }}"
+                                    {% if selected_status == value %}selected{% endif %}
+                                >
+                                    {{ label }}
+                                </option>
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="col-12 col-md-5">
+
+                        <label
+                            for="category"
+                            class="form-label small fw-semibold"
+                        >
+                            Category
+                        </label>
+
+                        <select
+                            id="category"
+                            name="category"
+                            class="form-select"
+                        >
+                            <option value="">
+                                All categories
+                            </option>
+
+                            {% for value, label in category_choices %}
+                                <option
+                                    value="{{ value }}"
+                                    {% if selected_category == value %}selected{% endif %}
+                                >
+                                    {{ label }}
+                                </option>
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="col-12 col-md-2">
+
+                        <button
+                            type="submit"
+                            class="btn btn-outline-primary w-100"
+                        >
+                            <i class="bi bi-funnel me-1"></i>
+                            Filter
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <div class="card border-0 shadow-sm">
+
+        <div class="card-body p-0">
+
+            <div class="table-responsive">
+
+                <table class="table align-middle mb-0">
+
+                    <thead class="table-light">
+
+                        <tr>
+                            <th>Asset</th>
+                            <th>Category</th>
+                            <th>Status</th>
+                            <th>Assigned To</th>
+                            <th class="text-end">Action</th>
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for asset in assets %}
+
+                            <tr>
+
+                                <td>
+                                    <a
+                                        href="{% url 'helpdesk:asset_detail' asset.id %}"
+                                        class="fw-semibold text-decoration-none"
+                                    >
+                                        {{ asset.name }}
+                                    </a>
+
+                                    <div class="text-muted small">
+                                        {{ asset.asset_tag }}
+                                    </div>
+                                </td>
+
+
+                                <td>
+                                    {{ asset.get_category_display }}
+                                </td>
+
+
+                                <td>
+
+                                    {% if asset.status == "available" %}
+                                        <span class="badge text-bg-success">
+                                            Available
+                                        </span>
+                                    {% elif asset.status == "assigned" %}
+                                        <span class="badge text-bg-primary">
+                                            Assigned
+                                        </span>
+                                    {% elif asset.status == "maintenance" %}
+                                        <span class="badge text-bg-warning">
+                                            Maintenance
+                                        </span>
+                                    {% else %}
+                                        <span class="badge text-bg-secondary">
+                                            Retired
+                                        </span>
+                                    {% endif %}
+
+                                </td>
+
+
+                                <td>
+
+                                    {% if asset.assigned_to %}
+                                        {{ asset.assigned_to.get_full_name|default:asset.assigned_to.username }}
+                                    {% else %}
+                                        <span class="text-muted">
+                                            Unassigned
+                                        </span>
+                                    {% endif %}
+
+                                </td>
+
+
+                                <td class="text-end">
+
+                                    <a
+                                        href="{% url 'helpdesk:asset_detail' asset.id %}"
+                                        class="btn btn-sm btn-outline-secondary"
+                                    >
+                                        View
+                                    </a>
+
+                                </td>
+
+                            </tr>
+
+                        {% empty %}
+
+                            <tr>
+                                <td
+                                    colspan="5"
+                                    class="text-center text-muted py-5"
+                                >
+                                    No assets found.
+                                </td>
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+{% endblock %}
